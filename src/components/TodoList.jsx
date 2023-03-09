@@ -1,51 +1,50 @@
-import React, { useState } from 'react';
 
-const IsEditTo = ({ isEdit, setIsEdit, todo, list, setList }) => {
-  const [state, setState] = useState('');
-  const handleChange = (event) => {
-    setState(event.target.value);
-  };
-  const editTodo = (todo) => {
-    const editTask = list.map((item) => {
-      if (item.id === todo.id) {
-        return todo;
-      } else {
-        return item;
-      }
-    });
+import { useState } from "react";
 
-    setList(editTask);
-  };
+const IsEditTo = ({ todo, deleteTodo, editTodo }) => {
+  const [isEdit, setIsEdit] = useState(false);
+  const [editableText, setEditableText] = useState("");
 
-  if (isEdit) {
-    return (
-      <form>
-        <input type="text" placeholder="edit" onChange={handleChange} value={state} />
-        <button onClick={() => setIsEdit(false)}>save</button>
-      </form>
-    );
-  } else {
-    return <h1 onClick={() => setIsEdit(true)}>state: {state}</h1>;
-  }
+  const isEditTemplate = isEdit ? (
+    <input
+      value={editableText}
+      onChange={(e) => setEditableText(e.target.value)}
+      placeholder="EDIT"
+    />
+  ) : (
+    <h1 onClick={() => setIsEdit(true)}>{todo.title}</h1>
+  );
+
+  return (
+    <div key={`todo-${todo.id}`}>
+      {isEditTemplate}
+      <p>{todo.desc}</p>
+      <button onClick={() => deleteTodo(todo.id)}>Удалить</button>
+      <button
+        onClick={() => {
+          if (!editableText.trim()) {
+            return;
+          }
+          editTodo(editableText, todo.id);
+          setIsEdit(false);
+        }}
+      >
+        Изменить
+      </button>
+    </div>
+  );
 };
 
-const TodoList = ({ list, deleteTodo, setList }) => {
-  const [isEdit, setIsEdit] = useState(false);
-
+const TodoList = ({ list, deleteTodo, editTodo }) => {
   return (
     <div>
       {list.map((todo) => (
-        <div key={todo.id}>
-          <IsEditTo
-            isEdit={isEdit}
-            setIsEdit={setIsEdit}
-            todo={todo}
-            list={list}
-            setList={setList}
-          />
-          <p>Ref: {todo.desc}</p>
-          <button onClick={() => deleteTodo(todo.id)}>Delete</button>
-        </div>
+        <IsEditTo
+          key={`todo-${todo.id}`}
+          todo={todo}
+          deleteTodo={deleteTodo}
+          editTodo={editTodo}
+        />
       ))}
     </div>
   );

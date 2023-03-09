@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
-import './App.css';
-import Input from './components/Input.jsx';
-import TodoList from './components/TodoList';
 
-const App = () => {
+import "./App.css";
+import Input from "./components/Input";
+import { useEffect, useState } from "react";
+import TodoList from "./components/TodoList";
+
+function App() {
   const [list, setList] = useState([]);
 
+  useEffect(()=>{
+    localStorage.setItem("todoList", JSON.stringify(list))
+  },[list])
   
 
   const addTodo = (todo) => {
@@ -18,12 +22,21 @@ const App = () => {
     setList(newList);
   };
 
+  const editTodo = (todo, id) => {
+    const idx = list.findIndex((el) => el.id === id);
+    const before = list.slice(0, idx);
+    const item = list[idx];
+    const after = list.slice(idx + 1);
+    const newList = [...before, { ...item, title: todo }, ...after];
+    setList(newList);
+  };
+
   return (
     <div className="App">
       <Input addTodo={addTodo} />
-      <TodoList list={list} deleteTodo={deleteTodo} setList={setList}/>
+      <TodoList list={list} deleteTodo={deleteTodo} editTodo={editTodo} />
     </div>
   );
-};
+}
 
 export default App;
